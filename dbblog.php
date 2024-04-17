@@ -477,6 +477,12 @@ class Dbblog extends Module
             $more_views = $data['more_views'];
             $limit_last_home = $data['limit_last_home'];
             $last_posts = $data['last_posts'];
+            $articles = DbBlogPost::getScheduledPosts();
+
+            foreach ($articles as $article) {
+                if (strtotime($article['scheduled_publish_date']) <= time()) {
+                }
+            }
 
             if ($limit_views_home > 0 || $limit_last_home > 0) {
                 Context::getContext()->smarty->assign(
