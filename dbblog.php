@@ -1,28 +1,28 @@
 <?php
 /**
-* 2007-2020 PrestaShop
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* that is bundled with this package in the file LICENSE.txt.
-* It is also available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-* If you did not receive a copy of the license and are unable to
-* obtain it through the world-wide-web, please send an email
-* to license@prestashop.com so we can send you a copy immediately.
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author    PrestaShop SA <contact@prestashop.com>
-*  @copyright 2007-2020 PrestaShop SA
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*  International Registered Trademark & Property of PrestaShop SA
-*/
+ * 2007-2020 PrestaShop
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ *  @author    PrestaShop SA <contact@prestashop.com>
+ *  @copyright 2007-2020 PrestaShop SA
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *  International Registered Trademark & Property of PrestaShop SA
+ */
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -41,12 +41,12 @@ class Dbblog extends Module
 
     public function __construct()
     {
-        require_once(dirname(__FILE__).'/classes/DbBlogCategory.php');
-        require_once(dirname(__FILE__).'/classes/DbBlogPost.php');
-        require_once(dirname(__FILE__).'/classes/DbBlogComment.php');
+        require_once (dirname(__FILE__) . '/classes/DbBlogCategory.php');
+        require_once (dirname(__FILE__) . '/classes/DbBlogPost.php');
+        require_once (dirname(__FILE__) . '/classes/DbBlogComment.php');
 
-        if(file_exists(dirname(__FILE__).'/premium/DbPremium.php')){
-            require_once(dirname(__FILE__).'/premium/DbPremium.php');
+        if (file_exists(dirname(__FILE__) . '/premium/DbPremium.php')) {
+            require_once (dirname(__FILE__) . '/premium/DbPremium.php');
             $this->premium = 1;
         } else {
             $this->premium = 0;
@@ -70,7 +70,7 @@ class Dbblog extends Module
 
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
 
-        if($this->id && !$this->isRegisteredInHook('moduleRoutes')) {
+        if ($this->id && !$this->isRegisteredInHook('moduleRoutes')) {
             $this->registerHook('moduleRoutes');
         }
     }
@@ -81,35 +81,35 @@ class Dbblog extends Module
      */
     public function install()
     {
-        if(!Module::isInstalled('dbdatatext')){
-            $this->rcopy(dirname(__FILE__).'/dependencies/dbdatatext/', _PS_MODULE_DIR_.'/dbdatatext/');
+        if (!Module::isInstalled('dbdatatext')) {
+            $this->rcopy(dirname(__FILE__) . '/dependencies/dbdatatext/', _PS_MODULE_DIR_ . '/dbdatatext/');
             $dbdatatext = Module::getInstanceByName('dbdatatext');
             $dbdatatext->install();
         } else {
-            if(!Module::isEnabled('dbdatatext')){
+            if (!Module::isEnabled('dbdatatext')) {
                 $dbdatatext = Module::getInstanceByName('dbdatatext');
                 $dbdatatext->enable();
             }
         }
 
-        if(!Module::isInstalled('dbaboutus')){
-            $this->rcopy(dirname(__FILE__).'/dependencies/dbaboutus/', _PS_MODULE_DIR_.'/dbaboutus/');
+        if (!Module::isInstalled('dbaboutus')) {
+            $this->rcopy(dirname(__FILE__) . '/dependencies/dbaboutus/', _PS_MODULE_DIR_ . '/dbaboutus/');
             $dbdatatext = Module::getInstanceByName('dbaboutus');
             $dbdatatext->install();
         } else {
-            if(!Module::isEnabled('dbaboutus')){
+            if (!Module::isEnabled('dbaboutus')) {
                 $dbdatatext = Module::getInstanceByName('dbaboutus');
                 $dbdatatext->enable();
             }
         }
 
-	    if(!Module::isEnabled('dbaboutus')){
+        if (!Module::isEnabled('dbaboutus')) {
             $this->_errors[] = $this->l('Debe de tener instalado y activo el módulo dbaboutus y el módulo dbdatatext');
             return false;
         }
 
         // Settings
-        include(dirname(__FILE__).'/sql/install.php');
+        include (dirname(__FILE__) . '/sql/install.php');
         $this->createTabs();
 
         // Config general
@@ -141,6 +141,10 @@ class Dbblog extends Module
         Configuration::updateValue('DBBLOG_POST_VIEWS_SIDEBARPS', '0');
         Configuration::updateValue('DBBLOG_POST_LAST_SIDEBARPS', '0');
 
+        Db::getInstance()->execute('
+        ALTER TABLE `' . _DB_PREFIX_ . 'dbblog_post`
+        ADD COLUMN `scheduled_publish_date` DATETIME AFTER `date_add`
+    ');
 
         return parent::install() &&
             $this->registerHook('moduleRoutes') &&
@@ -152,7 +156,7 @@ class Dbblog extends Module
 
     public function uninstall()
     {
-//        include(dirname(__FILE__).'/sql/uninstall.php');
+        //        include(dirname(__FILE__).'/sql/uninstall.php');
         $this->deleteTabs();
         Configuration::deleteByName('DBBLOG_SLUG');
         Configuration::deleteByName('DBBLOG_AUTHOR_SLUG');
@@ -163,19 +167,20 @@ class Dbblog extends Module
     /**
      * Function to Copy folders and files
      */
-    function rcopy($src, $dst) {
-        if (file_exists ( $dst )) {
+    function rcopy($src, $dst)
+    {
+        if (file_exists($dst)) {
             return;
         }
-        if (is_dir ( $src )) {
-            mkdir ( $dst );
-            $files = scandir ( $src );
-            foreach ( $files as $file ) {
+        if (is_dir($src)) {
+            mkdir($dst);
+            $files = scandir($src);
+            foreach ($files as $file) {
                 if ($file != "." && $file != "..") {
                     $this->rcopy("$src/$file", "$dst/$file");
                 }
             }
-        } else if (file_exists ( $src )) {
+        } else if (file_exists($src)) {
             copy($src, $dst);
         }
     }
@@ -308,19 +313,21 @@ class Dbblog extends Module
     }
 
     /**
-    * Add the CSS & JavaScript files you want to be loaded in the BO.
-    */
+     * Add the CSS & JavaScript files you want to be loaded in the BO.
+     */
     public function hookDisplayBackOfficeHeader()
     {
-        if (Tools::getValue('controller') == 'AdminDbBlogSetting'){
+        if (Tools::getValue('controller') == 'AdminDbBlogSetting') {
             $this->context->controller->addJquery();
             $this->context->controller->addJS($this->_path . '/views/js/back.js');
             $this->context->controller->addCSS($this->_path . '/views/css/back.css');
         }
-        Media::addJsDef(array(
-            'PS_ALLOW_ACCENTED_CHARS_URL' => (int)Configuration::get('PS_ALLOW_ACCENTED_CHARS_URL'),
-            'ps_force_friendly_product' => (int)Configuration::get('PS_FORCE_FRIENDLY_PRODUCT'),
-        ));
+        Media::addJsDef(
+            array(
+                'PS_ALLOW_ACCENTED_CHARS_URL' => (int) Configuration::get('PS_ALLOW_ACCENTED_CHARS_URL'),
+                'ps_force_friendly_product' => (int) Configuration::get('PS_FORCE_FRIENDLY_PRODUCT'),
+            )
+        );
     }
 
     /**
@@ -331,45 +338,51 @@ class Dbblog extends Module
         // Colores configurables
         $inline = "<style>
                     :root {
-                        --dbblog-texto1: ".Configuration::get('DBBLOG_COLOR_TEXT').";
-                        --dbblog-primary: ".Configuration::get('DBBLOG_COLOR').";
-                        --dbblog-background: ".Configuration::get('DBBLOG_COLOR_BACKGROUND').";
+                        --dbblog-texto1: " . Configuration::get('DBBLOG_COLOR_TEXT') . ";
+                        --dbblog-primary: " . Configuration::get('DBBLOG_COLOR') . ";
+                        --dbblog-background: " . Configuration::get('DBBLOG_COLOR_BACKGROUND') . ";
                     }
                 </style>";
-        if(Tools::getValue('fc') == 'module' && Tools::getValue('module') == 'dbblog') {
+        if (Tools::getValue('fc') == 'module' && Tools::getValue('module') == 'dbblog') {
             return $inline;
         }
 
         // Css hooks adicionales
-        if($this->premium == 1) {
+        if ($this->premium == 1) {
             $controller = Context::getContext()->controller->php_self;
             if ($controller == 'index') {
-                $featured_home = (int)Configuration::get('DBBLOG_POST_FEATURED_HOMEPS');
-                $views_home = (int)Configuration::get('DBBLOG_POST_VIEWS_HOMEPS');
-                if($featured_home > 0 || $views_home > 0) {
-                    $this->context->controller->addCSS(array(
-                        $this->getLocalPath() . 'views/css/dbblog.css',
-                    ));
+                $featured_home = (int) Configuration::get('DBBLOG_POST_FEATURED_HOMEPS');
+                $views_home = (int) Configuration::get('DBBLOG_POST_VIEWS_HOMEPS');
+                if ($featured_home > 0 || $views_home > 0) {
+                    $this->context->controller->addCSS(
+                        array(
+                            $this->getLocalPath() . 'views/css/dbblog.css',
+                        )
+                    );
                 }
-            } elseif($controller == 'category' || $controller == 'manufacturer') {
-                $featured_home = (int)Configuration::get('DBBLOG_POST_LAST_SIDEBARPS');
-                $views_home = (int)Configuration::get('DBBLOG_POST_VIEWS_SIDEBARPS');
-                if($featured_home > 0 || $views_home > 0) {
-                    $this->context->controller->addCSS(array(
-                        $this->getLocalPath() . 'views/css/dbblog.css',
-                    ));
+            } elseif ($controller == 'category' || $controller == 'manufacturer') {
+                $featured_home = (int) Configuration::get('DBBLOG_POST_LAST_SIDEBARPS');
+                $views_home = (int) Configuration::get('DBBLOG_POST_VIEWS_SIDEBARPS');
+                if ($featured_home > 0 || $views_home > 0) {
+                    $this->context->controller->addCSS(
+                        array(
+                            $this->getLocalPath() . 'views/css/dbblog.css',
+                        )
+                    );
                 }
             }
 
-            if(Tools::getValue('fc') == 'module' && Tools::getValue('module') == 'dbaboutus') {
-                $this->context->controller->addCSS(array(
-                    $this->getLocalPath() . 'views/css/dbblog.css',
-                ));
+            if (Tools::getValue('fc') == 'module' && Tools::getValue('module') == 'dbaboutus') {
+                $this->context->controller->addCSS(
+                    array(
+                        $this->getLocalPath() . 'views/css/dbblog.css',
+                    )
+                );
                 return $inline;
             }
         }
     }
-    
+
     /**
      * Add Routes
      */
@@ -386,7 +399,7 @@ class Dbblog extends Module
             // Home
             'module-dbblog-dbhome' => array(
                 'controller' => 'dbhome',
-                'rule' => $blog_slug.'/',
+                'rule' => $blog_slug . '/',
                 'keywords' => array(),
                 'params' => array(
                     'fc' => 'module',
@@ -397,7 +410,7 @@ class Dbblog extends Module
             // Category
             'module-dbblog-dbcategory' => array(
                 'controller' => 'dbcategory',
-                'rule' =>       $blog_slug.'/{rewrite}/',
+                'rule' => $blog_slug . '/{rewrite}/',
                 'keywords' => array(
                     'rewrite' => array('regexp' => '[_a-zA-Z0-9-\pL]*', 'param' => 'rewrite'),
                 ),
@@ -410,15 +423,15 @@ class Dbblog extends Module
             // Post
             'module-dbblog-dbpost' => array(
                 'controller' => 'dbpost',
-                'rule' =>       $blog_slug.'/{rewrite}.html',
+                'rule' => $blog_slug . '/{rewrite}.html',
                 'keywords' => array(
-                    'rewrite' =>    array('regexp' => '[_a-zA-Z0-9-\pL]*', 'param' => 'rewrite'),
+                    'rewrite' => array('regexp' => '[_a-zA-Z0-9-\pL]*', 'param' => 'rewrite'),
                 ),
                 'params' => array(
                     'fc' => 'module',
                     'module' => 'dbblog',
                 ),
-            ),  
+            ),
 
         );
 
@@ -427,7 +440,7 @@ class Dbblog extends Module
 
     public function renderPremiumTpl($tpl)
     {
-        if($this->premium == 1) {
+        if ($this->premium == 1) {
             return $this->display(__FILE__, 'premium/' . $tpl);
         }
 
@@ -436,18 +449,20 @@ class Dbblog extends Module
 
     public function hookdisplayLeftColumn($params)
     {
-        if($this->premium == 1) {
+        if ($this->premium == 1) {
             $num_views = Configuration::get('DBBLOG_POST_VIEWS_SIDEBARPS');
             $num_last = Configuration::get('DBBLOG_POST_LAST_SIDEBARPS');
             $data = DbBlogPremium::hookdisplayLeftColumn($params);
             $more_views = $data['more_views'];
             $last_posts = $data['last_posts'];
             if ($num_views > 0 || $last_posts > 0) {
-                $this->context->smarty->assign(array(
-                    'path_img' => _MODULE_DIR_ . 'dbblog/views/img/',
-                    'more_views' => $more_views,
-                    'last_posts' => $last_posts,
-                ));
+                $this->context->smarty->assign(
+                    array(
+                        'path_img' => _MODULE_DIR_ . 'dbblog/views/img/',
+                        'more_views' => $more_views,
+                        'last_posts' => $last_posts,
+                    )
+                );
                 return $this->fetch('module:dbblog/views/templates/hook/sidebar.tpl');
             }
         }
@@ -455,7 +470,7 @@ class Dbblog extends Module
 
     public function hookdisplayHome($params)
     {
-        if($this->premium == 1){
+        if ($this->premium == 1) {
             $data = DbBlogPremium::hookdisplayHome($params);
 
             $limit_views_home = $data['limit_views_home'];
@@ -463,14 +478,16 @@ class Dbblog extends Module
             $limit_last_home = $data['limit_last_home'];
             $last_posts = $data['last_posts'];
 
-            if($limit_views_home > 0 || $limit_last_home > 0) {
-                Context::getContext()->smarty->assign(array(
-                    'more_views' => $more_views,
-                    'last_posts' => $last_posts,
-                    'limit_views' => $limit_views_home,
-                    'limit_last' => $limit_last_home,
-                    'path_img_posts' => _MODULE_DIR_.'dbblog/views/img/post/',
-                ));
+            if ($limit_views_home > 0 || $limit_last_home > 0) {
+                Context::getContext()->smarty->assign(
+                    array(
+                        'more_views' => $more_views,
+                        'last_posts' => $last_posts,
+                        'limit_views' => $limit_views_home,
+                        'limit_last' => $limit_last_home,
+                        'path_img_posts' => _MODULE_DIR_ . 'dbblog/views/img/post/',
+                    )
+                );
                 return $this->fetch('module:dbblog/views/templates/hook/homeps.tpl');
             }
         }
@@ -478,10 +495,12 @@ class Dbblog extends Module
 
     public function renderScroll($posts)
     {
-        $this->smarty->assign(array(
-            'list_post' => $posts,
-            'path_img_posts' => _MODULE_DIR_.'dbblog/views/img/post/',
-        ));
+        $this->smarty->assign(
+            array(
+                'list_post' => $posts,
+                'path_img_posts' => _MODULE_DIR_ . 'dbblog/views/img/post/',
+            )
+        );
 
         return $this->fetch('module:dbblog/views/templates/front/_partials/infinite_scroll.tpl');
     }
@@ -491,8 +510,8 @@ class Dbblog extends Module
         // Customer
         $customer_login = $this->context->customer->isLogged();
         $customer_name = '';
-        if($customer_login){
-            $customer_name = $this->context->customer->firstname.' '.$this->context->customer->lastname;
+        if ($customer_login) {
+            $customer_name = $this->context->customer->firstname . ' ' . $this->context->customer->lastname;
         }
 
         $link = new Link();
@@ -503,17 +522,19 @@ class Dbblog extends Module
         $recaptcha = Configuration::get('DBBLOG_RECAPTCHA');
         $recaptcha_private = Configuration::get('DBBLOG_RECAPTCHA_PRIVATE');
 
-        $this->smarty->assign(array(
-            'id_comment' => $id_comment,
-            'customer_name' => $customer_name,
-            'customer_login' => $customer_login,
-            'id_post' => $id_post,
-            'recaptcha_enable' => $recaptcha_enable,
-            'link_privacity' => $link_privacity,
-            'rgpd_text' => $rgpd_text,
-            'recaptcha' => $recaptcha,
-            'recaptcha_private' => $recaptcha_private,
-        ));
+        $this->smarty->assign(
+            array(
+                'id_comment' => $id_comment,
+                'customer_name' => $customer_name,
+                'customer_login' => $customer_login,
+                'id_post' => $id_post,
+                'recaptcha_enable' => $recaptcha_enable,
+                'link_privacity' => $link_privacity,
+                'rgpd_text' => $rgpd_text,
+                'recaptcha' => $recaptcha,
+                'recaptcha_private' => $recaptcha_private,
+            )
+        );
 
         return $this->fetch('module:dbblog/views/templates/front/_partials/form_comment.tpl');
     }
@@ -521,7 +542,7 @@ class Dbblog extends Module
     public function shortCodes($desc)
     {
 
-        if($this->premium == 1) {
+        if ($this->premium == 1) {
             return DbBlogPremium::shortCodes($desc);
         }
 
@@ -531,7 +552,7 @@ class Dbblog extends Module
     public function getProductSC($id_product)
     {
         $product = new Product($id_product, null, $this->context->language->id);
-        if(!empty($product->link_rewrite) && $product->link_rewrite != '') {
+        if (!empty($product->link_rewrite) && $product->link_rewrite != '') {
             $product = array(
                 'id_product' => $id_product,
             );
@@ -565,16 +586,20 @@ class Dbblog extends Module
     {
         $id_lang = $this->context->language->id;
         $category = new Category($id_category, $id_lang);
-        if($orderby != 'seller' && $orderby != 'id_product' && $orderby != 'date_add' && $orderby != 'date_upd' && $orderby != 'name'
-            && $orderby != 'manufacturer' && $orderby != 'position' && $orderby != 'price'){
+        if (
+            $orderby != 'seller' && $orderby != 'id_product' && $orderby != 'date_add' && $orderby != 'date_upd' && $orderby != 'name'
+            && $orderby != 'manufacturer' && $orderby != 'position' && $orderby != 'price'
+        ) {
             $orderby = 'seller';
         }
-        if($way != 'asc' && $way != 'desc'){
+        if ($way != 'asc' && $way != 'desc') {
             $way = 'DESC';
         }
-        if($num < 1){ $num = 4; }
-        if(!empty($category->link_rewrite) && $category->link_rewrite != '') {
-            if($orderby == 'seller'){
+        if ($num < 1) {
+            $num = 4;
+        }
+        if (!empty($category->link_rewrite) && $category->link_rewrite != '') {
+            if ($orderby == 'seller') {
                 $products = $this->getProductsSeller($id_category, $way, $num);
             } else {
                 $products = $category->getProducts($id_lang, 1, $num, $orderby);
@@ -585,8 +610,7 @@ class Dbblog extends Module
             $presenterFactory = new ProductPresenterFactory($this->context);
             $presentationSettings = $presenterFactory->getPresentationSettings();
             $presenter = new ProductListingPresenter(new ImageRetriever($this->context->link), $this->context->link, new PriceFormatter(), new ProductColorsRetriever(), $this->context->getTranslator());
-            foreach ($products as $rawProduct)
-            {
+            foreach ($products as $rawProduct) {
                 $products_for_template[] = $presenter->present(
                     $presentationSettings,
                     $assembler->assembleProduct($rawProduct),
@@ -600,7 +624,9 @@ class Dbblog extends Module
 
     public function getProductsSeller($id_category, $way = null, $num = null, $id_lang)
     {
-        if($way == null){ $way = DESC; }
+        if ($way == null) {
+            $way = DESC;
+        }
         $sql = 'SELECT p.id_product, 
                     SUM(od.product_quantity) as sellers
 				FROM `' . _DB_PREFIX_ . 'category_product` cp
@@ -614,21 +640,22 @@ class Dbblog extends Module
             . (' AND product_shop.`active` = 1')
             . ' AND product_shop.`visibility` IN ("both", "catalog")
                     AND (stock.out_of_stock = 1 OR stock.quantity > 0)';
-        if($id_category > 0){
+        if ($id_category > 0) {
             $categories = implode(',', $this->getAllChildrens([], $id_category, $id_lang));
-            $sql .= ' AND cp.id_category IN ('.$categories.')';
+            $sql .= ' AND cp.id_category IN (' . $categories . ')';
         }
         $sql .= ' GROUP BY p.id_product
-                ORDER BY sellers '.$way.'
-                LIMIT '.$num;
+                ORDER BY sellers ' . $way . '
+                LIMIT ' . $num;
 
         $products = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql, true, true);
 
         return $products;
     }
 
-    public function checkWebp() {
-        if($this->premium == 0) {
+    public function checkWebp()
+    {
+        if ($this->premium == 0) {
             return false;
         }
 
@@ -640,10 +667,11 @@ class Dbblog extends Module
         }
     }
 
-    public static function getNewImg($img) {
+    public static function getNewImg($img)
+    {
 
         // Cuando no hay imagen guardada en base de datos, le damos la default
-        if(empty($img)) {
+        if (empty($img)) {
             $image = [];
             $image['webp_small'] = 0;
             $image['webp_big'] = 0;
@@ -652,36 +680,36 @@ class Dbblog extends Module
             return $image;
         }
 
-        $dir_img = dirname(__FILE__).'/views/img/post/';
+        $dir_img = dirname(__FILE__) . '/views/img/post/';
         $type = Tools::strtolower(Tools::substr(strrchr($img, '.'), 1));
         $extensions = array('.jpg', '.gif', '.jpeg', '.png', '.webp');
         $name_without_extension = str_replace($extensions, '', $img);
-        $img_small = $name_without_extension.'-small.'.$type;
-        $img_big = $name_without_extension.'-big.'.$type;
-        $img_small_webp = $img_small.'.webp';
-        $img_big_webp = $img_big.'.webp';
+        $img_small = $name_without_extension . '-small.' . $type;
+        $img_big = $name_without_extension . '-big.' . $type;
+        $img_small_webp = $img_small . '.webp';
+        $img_big_webp = $img_big . '.webp';
 
         $image = [];
         $image['webp_small'] = 0;
         $image['webp_big'] = 0;
         // Imagen small
-        if (file_exists($dir_img.$img_small_webp)) {
+        if (file_exists($dir_img . $img_small_webp)) {
             $image['small'] = $img_small;
             $image['webp_small'] = 1;
-        } elseif(file_exists($dir_img.$img_small)) {
+        } elseif (file_exists($dir_img . $img_small)) {
             $image['small'] = $img_small;
-        } elseif(file_exists($dir_img.$img)) {
+        } elseif (file_exists($dir_img . $img)) {
             $image['small'] = $img;
         } else {
             $image['small'] = 'sin-imagen-small.jpg';
         }
         // Imagen big
-        if (file_exists($dir_img.$img_big_webp)) {
+        if (file_exists($dir_img . $img_big_webp)) {
             $image['big'] = $img_big;
             $image['webp_big'] = 1;
-        } elseif(file_exists($dir_img.$img_big)) {
+        } elseif (file_exists($dir_img . $img_big)) {
             $image['big'] = $img_big;
-        } elseif(file_exists($dir_img.$img)) {
+        } elseif (file_exists($dir_img . $img)) {
             $image['big'] = $img;
         } else {
             $image['big'] = 'sin-imagen-big.jpg';
@@ -694,8 +722,8 @@ class Dbblog extends Module
     {
         $itemListElement = [];
         $position = 1;
-        foreach($breadcrumb['links'] as $bc) {
-            (object)$bread = new stdClass();
+        foreach ($breadcrumb['links'] as $bc) {
+            (object) $bread = new stdClass();
             $bread->{'@type'} = 'ListItem';
             $bread->position = $position;
             $bread->name = $bc['title'];
@@ -704,13 +732,13 @@ class Dbblog extends Module
             $position++;
         }
 
-        (object)$json = new stdClass();
+        (object) $json = new stdClass();
         $json->{'@context'} = 'https://schema.org';
         $json->{'@type'} = 'BreadcrumbList';
         $json->itemListElement = $itemListElement;
 
         $json_ld = json_encode($json, JSON_UNESCAPED_UNICODE);
-        $script_json = '<script type="application/ld+json">'.$json_ld.'</script>';
+        $script_json = '<script type="application/ld+json">' . $json_ld . '</script>';
 
         return $script_json;
     }
