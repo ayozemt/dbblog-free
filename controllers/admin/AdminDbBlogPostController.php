@@ -1,28 +1,28 @@
 <?php
 /**
-* 2007-2020 PrestaShop
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* that is bundled with this package in the file LICENSE.txt.
-* It is also available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-* If you did not receive a copy of the license and are unable to
-* obtain it through the world-wide-web, please send an email
-* to license@prestashop.com so we can send you a copy immediately.
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author    DevBlinders <info@devblinders.com>
-*  @copyright 2007-2020 DevBlinders
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*  International Registered Trademark & Property of PrestaShop SA
-*/
+ * 2007-2020 PrestaShop
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ *  @author    DevBlinders <info@devblinders.com>
+ *  @copyright 2007-2020 DevBlinders
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *  International Registered Trademark & Property of PrestaShop SA
+ */
 
 
 class AdminDbBlogPostController extends ModuleAdminController
@@ -83,7 +83,7 @@ class AdminDbBlogPostController extends ModuleAdminController
             ),
         );
 
-        if($this->module->premium == 1) {
+        if ($this->module->premium == 1) {
             $this->fields_list['index'] = DbBlogPremium::renderListProduct();
         }
 
@@ -98,21 +98,18 @@ class AdminDbBlogPostController extends ModuleAdminController
 
     public function initProcess()
     {
-        if (Tools::getIsset('status'.$this->table))
-        {
-            DbBlogPost::isToggleStatus((int)Tools::getValue('id_dbblog_post'));
+        if (Tools::getIsset('status' . $this->table)) {
+            DbBlogPost::isToggleStatus((int) Tools::getValue('id_dbblog_post'));
             return;
         }
 
-        if (Tools::getIsset('index'.$this->table))
-        {
-            DbBlogPost::isToggleIndex((int)Tools::getValue('id_dbblog_post'));
+        if (Tools::getIsset('index' . $this->table)) {
+            DbBlogPost::isToggleIndex((int) Tools::getValue('id_dbblog_post'));
             return;
         }
 
-        if (Tools::getIsset('featured'.$this->table))
-        {
-            DbBlogPost::isToggleFeatured((int)Tools::getValue('id_dbblog_post'));
+        if (Tools::getIsset('featured' . $this->table)) {
+            DbBlogPost::isToggleFeatured((int) Tools::getValue('id_dbblog_post'));
             return;
         }
 
@@ -125,20 +122,20 @@ class AdminDbBlogPostController extends ModuleAdminController
         $this->list_no_link = true;
 
         if (Shop::getContext() == Shop::CONTEXT_SHOP && Shop::isFeatureActive()) {
-            $this->_where = ' AND b.`id_shop` = '.(int)Context::getContext()->shop->id;
+            $this->_where = ' AND b.`id_shop` = ' . (int) Context::getContext()->shop->id;
         }
 
         // adds actions on rows
         $this->addRowAction('edit');
         $this->addRowAction('delete');
-        
+
         return parent::renderList();
     }
 
     public function renderView()
     {
         // gets necessary objects
-        $id_dbblog_post = (int)Tools::getValue('id_dbblog_post');
+        $id_dbblog_post = (int) Tools::getValue('id_dbblog_post');
         return parent::renderView();
     }
 
@@ -148,7 +145,7 @@ class AdminDbBlogPostController extends ModuleAdminController
         $obj = $this->loadObject(true);
 
         // Sets the title of the toolbar
-        if (Tools::isSubmit('add'.$this->table)) {
+        if (Tools::isSubmit('add' . $this->table)) {
             $this->toolbar_title = $this->l('Crear nuevo post');
         } else {
             $this->toolbar_title = $this->l('Actualizar post');
@@ -160,9 +157,9 @@ class AdminDbBlogPostController extends ModuleAdminController
 
         // Imagen cuando editamos
         $image = '';
-        if(isset($obj->id)) {
-            if (file_exists(_PS_MODULE_DIR_ . 'dbblog/views/img/post/'.$obj->image[1]) && !empty($obj->image[1])) {
-                $image_url = ImageManager::thumbnail(_PS_MODULE_DIR_ . 'dbblog/views/img/post/'.$obj->image[1], 'dbblog_'.$obj->image[1], 350, 'jpg', false);
+        if (isset($obj->id)) {
+            if (file_exists(_PS_MODULE_DIR_ . 'dbblog/views/img/post/' . $obj->image[1]) && !empty($obj->image[1])) {
+                $image_url = ImageManager::thumbnail(_PS_MODULE_DIR_ . 'dbblog/views/img/post/' . $obj->image[1], 'dbblog_' . $obj->image[1], 350, 'jpg', false);
                 $image = '<div class="col-lg-6">' . $image_url . '</div>';
             } else {
                 $image = '';
@@ -295,7 +292,15 @@ class AdminDbBlogPostController extends ModuleAdminController
                         'id' => 'id',
                         'query' => $authors,
                         'name' => 'name'
-                        )
+                    )
+                ),
+
+                array(
+                    'type' => 'date',
+                    'label' => $this->l('Programar fecha de publicación'),
+                    'name' => 'scheduled_publish_date',
+                    'required' => false,
+                    'hint' => $this->l('Dejar en blanco para publicación inmediata.'),
                 ),
 
                 array(
@@ -335,11 +340,11 @@ class AdminDbBlogPostController extends ModuleAdminController
                         )
                     ),
                 ),
-                
+
             ),
         );
 
-        if($this->module->premium == 1) {
+        if ($this->module->premium == 1) {
             $this->fields_form['input'][] = DbBlogPremium::renderFormProduct();
         }
 
@@ -351,7 +356,7 @@ class AdminDbBlogPostController extends ModuleAdminController
         $this->fields_form['buttons'] = array(
             'save-and-stay' => array(
                 'title' => $this->trans('Guardar y permanecer', array(), 'Admin.Actions'),
-                'name' => 'submitAdd'.$this->table.'AndStay',
+                'name' => 'submitAdd' . $this->table . 'AndStay',
                 'type' => 'submit',
                 'class' => 'btn btn-default pull-right',
                 'icon' => 'process-icon-save'
@@ -415,9 +420,9 @@ class AdminDbBlogPostController extends ModuleAdminController
         $object = parent::processDelete();
 
         // Delete Image
-        if(isset($object->image)) {
+        if (isset($object->image)) {
             foreach ($object->image as $image) {
-                if(!empty($image)) {
+                if (!empty($image)) {
                     $del_img = _PS_MODULE_DIR_ . 'dbblog/views/img/post/' . $image;
                     if (file_exists($del_img)) {
                         unlink($del_img);
@@ -439,7 +444,8 @@ class AdminDbBlogPostController extends ModuleAdminController
         // Guardamos las imagenes
         $type = Tools::strtolower(Tools::substr(strrchr($_FILES['image']['name'], '.'), 1));
         $imagesize = @filesize($_FILES['image']['tmp_name']);
-        if (isset($_FILES['image']) &&
+        if (
+            isset($_FILES['image']) &&
             isset($_FILES['image']['tmp_name']) &&
             !empty($_FILES['image']['tmp_name']) &&
             !empty($imagesize) &&
@@ -447,18 +453,18 @@ class AdminDbBlogPostController extends ModuleAdminController
         ) {
             $temp_name = tempnam(_PS_TMP_IMG_DIR_, 'PS');
             $imagen_tmp = $_FILES['image']['tmp_name'];
-            $image_name = $post->id.'-'.$post->link_rewrite[1];
-            $image_name_extension = $post->id.'-'.$post->link_rewrite[1].'.'.$type;
-            $dir_img = dirname(__FILE__).'/../../views/img/post/';
-            if (!move_uploaded_file($imagen_tmp, $dir_img.$image_name_extension)) {
+            $image_name = $post->id . '-' . $post->link_rewrite[1];
+            $image_name_extension = $post->id . '-' . $post->link_rewrite[1] . '.' . $type;
+            $dir_img = dirname(__FILE__) . '/../../views/img/post/';
+            if (!move_uploaded_file($imagen_tmp, $dir_img . $image_name_extension)) {
                 $this->errors[] = $this->l('Error al subir la imagen');
                 return false;
             }
 
             // redimensionamos las imagenes
-            $img_orig = $dir_img.$image_name_extension;
-            $img_small = $dir_img.$image_name.'-small.'.$type;
-            $img_big = $dir_img.$image_name.'-big.'.$type;
+            $img_orig = $dir_img . $image_name_extension;
+            $img_small = $dir_img . $image_name . '-small.' . $type;
+            $img_big = $dir_img . $image_name . '-big.' . $type;
             list($originalWidth, $originalHeight) = getimagesize($img_orig);
             $ratio = $originalWidth / $originalHeight;
             $height_small = 400 / $ratio;
@@ -468,9 +474,9 @@ class AdminDbBlogPostController extends ModuleAdminController
 
             // Generamos el webp
             $checkWebp = $this->module->checkWebp();
-            if($checkWebp && $type != 'webp') {
-                $img_small_webp = $img_small.'.webp';
-                $img_big_webp = $img_big.'.webp';
+            if ($checkWebp && $type != 'webp') {
+                $img_small_webp = $img_small . '.webp';
+                $img_big_webp = $img_big . '.webp';
                 DbBlogPremium::convertImageToWebP($img_small, $img_small_webp);
                 DbBlogPremium::convertImageToWebP($img_big, $img_big_webp);
             }
@@ -488,8 +494,8 @@ class AdminDbBlogPostController extends ModuleAdminController
 
     public static function getImg($img, $row)
     {
-        if (file_exists(_PS_MODULE_DIR_ . 'dbblog/views/img/post/'.$img) && !empty($img)) {
-            $image = ImageManager::thumbnail(_PS_MODULE_DIR_ . 'dbblog/views/img/post/'.$img, 'dbblog_'.$img, 75, 'jpg', true);
+        if (file_exists(_PS_MODULE_DIR_ . 'dbblog/views/img/post/' . $img) && !empty($img)) {
+            $image = ImageManager::thumbnail(_PS_MODULE_DIR_ . 'dbblog/views/img/post/' . $img, 'dbblog_' . $img, 75, 'jpg', true);
             return $image;
         } else {
             return;
